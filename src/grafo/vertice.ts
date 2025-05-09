@@ -1,9 +1,3 @@
-enum estado {
-    INICIO = "INICIO",
-    NEUTRO = "NEUTRO",
-    FIM = "FIM"
-}
-
 enum objetivo {
     ENTREGA,
     COLETA,
@@ -11,8 +5,8 @@ enum objetivo {
 }
 
 interface Ligacao {
-    vertice: Vertice,
-    aresta: Aresta
+    vertice: Vertice, //Alcança esse vértice
+    aresta: Aresta //Através dessa aresta
 }
 
 
@@ -24,6 +18,7 @@ class Vertice {
     private tempoDePermanencia: number;
     private verticesAlcancaveis: Map<string, Ligacao> = new Map<string, Ligacao>();
     private carga: number;
+    private visitado: boolean;
    
 
     constructor(alvo: boolean, tipo: objetivo, tempoDePermanencia: number, carga: number ,verticesAlcancaveis?: [{nome: string, vertice: Ligacao}], nome?: string) {
@@ -32,6 +27,7 @@ class Vertice {
         this.tipo = objetivo.NAOAPLICAVEL;
         this.tempoDePermanencia = 0;
         this.carga = 0;
+        this.visitado = false;
 
 
         try {
@@ -138,6 +134,14 @@ class Vertice {
 
     public getNome(): string {
         return this.nome;
+    }
+
+    public setVisitado(visitado: boolean): void {
+        this.visitado = visitado;
+    }
+
+    public getVisitado(): boolean {
+        return this.visitado;
     }
 
 

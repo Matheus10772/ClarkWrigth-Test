@@ -4,6 +4,7 @@ enum TipoDeLigacao {
 }
 
 
+
 interface verticeDeLigacao {
     tipo: TipoDeLigacao,
     vertice: Vertice

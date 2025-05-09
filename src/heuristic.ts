@@ -4,52 +4,64 @@ import grafo from './grafo/grafo';
 
 class roteirizador{
 
-    private calculateCostMatrixDijkstra(grafo: grafo, lambdaF: number) {
+    private calculateMinCost( verticeOrigem: Vertice  ,VerticeAtual: Vertice, lambdaF: number, costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>, fila: Vertice[]): void {
+
+        for(let verticeVizinho of VerticeAtual.getVerticesAlcancaveis()){
+
+            const custoAtual = costMatrix.get(verticeOrigem)!.get(verticeVizinho[1].vertice)?.custo!; //-> dist[v]
+
+            const custoAtualizado = costMatrix.get(verticeOrigem)!.get(VerticeAtual)?.custo! + verticeVizinho[1].aresta.getCustoTotal(1, 1) + verticeVizinho[1].aresta.getTempoMinDeViagem() * lambdaF;  //-> dist[u] + custo(u,v)
+            if( verticeVizinho[1].vertice.getVisitado() == false && ( custoAtual == -1 || custoAtualizado == -1 || custoAtualizado < custoAtual) ){
+                
+                costMatrix.get(verticeOrigem)!.set(verticeVizinho[1].vertice, {custo: custoAtualizado, predecessor: VerticeAtual});
+                fila.push(verticeVizinho[1].vertice);
+
+                /*if ( !(costMatrix.get(verticeOrigem)!.has(verticeVizinho[1].vertice)) ) {
+                    
+                } else {
+                    costMatrix.get(verticeOrigem)?.set(verticeVizinho[1].vertice, custoAtualizado);
+                }*/
+            }
+
+        }
+
+    }
+
+    private calculateCostMatrixDijkstra(grafo: grafo, lambdaF: number): Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>{
         const matrixSize = grafo.getVertices().size;
-        const costMatrix: {vertice: Vertice, custo: number}[][] = Array.from({ length: matrixSize }, () => Array(matrixSize).fill(0));
+        const costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>> = new Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>();
 
         
         for(let vertice of grafo.getVertices()){
 
+            if(!costMatrix.has(vertice[1]))
+                costMatrix.set(vertice[1], new Map<Vertice, {custo: number, predecessor: Vertice}>());
+            
+
             let fila: Vertice[] = [];
             fila.push(vertice[1]);
+
             while (fila.length > 0) {
-                let verticeAtual = fila.shift() ;
-                if(verticeAtual){
-                    
-                }
+                let verticeAtual = fila.shift();
+                if (!verticeAtual)
+                    throw new Error("Erro ao retirar um vértice da fila.");    
+                verticeAtual?.setVisitado(true);
+                this.calculateMinCost(vertice[1], verticeAtual, lambdaF, costMatrix, fila);
+                
                 
             }
           
         }
 
-        for (let i = 0; i < matrixSize; i++) {
-            for (let j = 0; j < matrixSize; j++) {
-                if (i != j) {
-                    costMatrix[i][j] = grafo.getArestas().get(`${i}-${j}`)?.getCustoTotal(lambdaF, 1) || 0;
-                }
-            }
-        }
+        return costMatrix;
 
-        return { costMatrix, proposedCentroids, savings };
-    }
-
-    private calculateMinCost(vertice: Vertice, lambdaF: number, custoAnterior: number): number {
-        let custoAtual: number = -1;
-        if(custoAnterior == -1)
-            custoAtual = custoAnterior;
-        for(let verticeVizinho of vertice.getVerticesAlcancaveis()){
-            const custo = vertice.getCustoTotal(1, 1) + verticeVizinho[1].aresta.getCustoTotal(1, 1) + verticeVizinho[1].aresta.getTamanho() * lambdaF;
-            if(custoAtual == -1 || custo < custoAtual){
-                custoAtual = custo;
-            }
-        }
-
-        return custoAtual;
     }
 
 
-    private calculateSavings(grafo: grafo) {
+
+    private calculateSavings(verticesDosClientes: Vertice[], verticesDosDepositos: Vertice[], costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>) {
+            const savingMatrixSize: number = grafo.getVertices().size;
+
 
         
             for (let j = 0; j < N; j++) {
