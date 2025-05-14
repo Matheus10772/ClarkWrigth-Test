@@ -1,10 +1,11 @@
 import grafo from './grafo/grafo';
 
 
-
+type Custo = Map<Vertice, {custo: number, predecessor: Vertice}>;
+type Saving = {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number};
 class roteirizador{
 
-    private calculateMinCost( verticeOrigem: Vertice  ,VerticeAtual: Vertice, lambdaF: number, costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>, fila: Vertice[]): void {
+    private calculateMinCost( verticeOrigem: Vertice  ,VerticeAtual: Vertice, lambdaF: number, costMatrix: Map<Vertice, Custo>, fila: Vertice[]): void {
 
         for(let verticeVizinho of VerticeAtual.getVerticesAlcancaveis()){
 
@@ -15,21 +16,15 @@ class roteirizador{
                 
                 costMatrix.get(verticeOrigem)!.set(verticeVizinho[1].vertice, {custo: custoAtualizado, predecessor: VerticeAtual});
                 fila.push(verticeVizinho[1].vertice);
-
-                /*if ( !(costMatrix.get(verticeOrigem)!.has(verticeVizinho[1].vertice)) ) {
-                    
-                } else {
-                    costMatrix.get(verticeOrigem)?.set(verticeVizinho[1].vertice, custoAtualizado);
-                }*/
             }
 
         }
 
     }
 
-    private calculateCostMatrixDijkstra(grafo: grafo, lambdaF: number): Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>{
+    private calculateCostMatrixDijkstra(grafo: grafo, lambdaF: number): Map<Vertice, Custo>{
         const matrixSize = grafo.getVertices().size;
-        const costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>> = new Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>();
+        const costMatrix: Map<Vertice, Custo> = new Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>();
 
         
         for(let vertice of grafo.getVertices()){
@@ -45,7 +40,7 @@ class roteirizador{
                 let verticeAtual = fila.shift();
                 if (!verticeAtual)
                     throw new Error("Erro ao retirar um vértice da fila.");    
-                verticeAtual?.setVisitado(true);
+                verticeAtual!.setVisitado(true);
                 this.calculateMinCost(vertice[1], verticeAtual, lambdaF, costMatrix, fila);
                 
                 
@@ -59,9 +54,9 @@ class roteirizador{
 
 
 
-    private calculateSavings(verticesDosClientes: Vertice[], verticeDoDeposito: Vertice, costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>): {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[] {
+    private calculateSavings(verticesDosClientes: Vertice[], verticeDoDeposito: Vertice, costMatrix: Map<Vertice, Custo>): Saving[] {
 
-        const savings: {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[] = [];
+        const savings: Saving[] = [];
 
         for(let verticeClienteI of verticesDosClientes){
             for(let verticeClienteJ of verticesDosClientes){
@@ -84,8 +79,8 @@ class roteirizador{
     }
 
 
-    private sortSavings(savings: {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[]): {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[] {
-        savings.sort((a, b) => b.custo - a.custo);
+    private sortSavings(savings: Saving[]): Saving[] {
+        savings.sort((a, b) => b.custo - a.custo); //Concertar isso
         return savings;
     }
 
