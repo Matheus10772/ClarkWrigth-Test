@@ -59,21 +59,44 @@ class roteirizador{
 
 
 
-    private calculateSavings(verticesDosClientes: Vertice[], verticesDosDepositos: Vertice[], costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>) {
-            const savingMatrixSize: number = grafo.getVertices().size;
+    private calculateSavings(verticesDosClientes: Vertice[], verticeDoDeposito: Vertice, costMatrix: Map<Vertice, Map<Vertice, {custo: number, predecessor: Vertice}>>): {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[] {
 
+        const savings: {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[] = [];
 
-        
-            for (let j = 0; j < N; j++) {
-                if (i!=j && (proposedCentroids[i].identifier != 0 && proposedCentroids[j].identifier != 0) && (proposedCentroids[i].identifier != -1 && proposedCentroids[j].identifier != -1)) {
-                    const saving = lambdaF*costMatrix[i][N-1]+ lambdaI*costMatrix[0][j] - lambdaM*costMatrix[i][j];
-                    savings[`${i}-${j}`] = saving;
+        for(let verticeClienteI of verticesDosClientes){
+            for(let verticeClienteJ of verticesDosClientes){
+
+                if(verticeClienteI.getNome() != verticeClienteJ.getNome()) {
+                    const custoClienteDeposito = costMatrix.get(verticeClienteI)!.get(verticeDoDeposito)?.custo!;
+                    const custoDepositoCliente = costMatrix.get(verticeClienteJ)!.get(verticeDoDeposito)?.custo!;
+                    const custoClienteIClienteJ = costMatrix.get(verticeClienteI)!.get(verticeClienteJ)?.custo!;
+
+                    const saving = custoClienteDeposito + custoDepositoCliente - custoClienteIClienteJ;
+
+                    savings.push({verticeClienteI, verticeClienteJ, custo: saving});
                 }
+                    
+                
             }
-        
+        }
 
-        const sortedSavings = Object.keys(savings).sort((a,b) => savings[b] - savings[a]).map(key => key.split('-').map(Number));
-        return sortedSavings
+        return savings;
+    }
+
+
+    private sortSavings(savings: {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[]): {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[] {
+        savings.sort((a, b) => b.custo - a.custo);
+        return savings;
+    }
+
+    private makeFusions(savings: {verticeClienteI: Vertice, verticeClienteJ: Vertice, custo: number}[], deposito: Vertice) {
+        const listaDeRota: {Vertice: Vertice[], id: number}[] = [];
+
+        for(let saving of savings){
+            
+
+            if()
+        }
     }
 
 }
